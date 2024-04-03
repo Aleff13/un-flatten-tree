@@ -169,4 +169,45 @@ bdd.describe('unflatten', () => {
       )
     ).to.eql(tree);
   });
+
+  bdd.it('should convert list with multiple parents to tree', () => {
+    const tree = [
+      new Node('A'),
+      new Node('B', [new Node('D')]),
+      new Node('C', [new Node('D', [new Node('E')]), new Node('F')])
+    ];
+
+    const list = [
+      { id: 1, pid: null, name: 'A' },
+      { id: 2, pid: null, name: 'B' },
+      { id: 3, pid: null, name: 'C' },
+      { id: 4, pid: [3, 2], name: 'D' },
+      { id: 5, pid: 4, name: 'E' },
+      { id: 6, pid: 3, name: 'F' }
+    ];
+
+    expect(
+      unflatten(
+        list,
+        (node, parentNode) => node.pid === parentNode.id,
+        (node, parentNode: Node) => {
+          parentNode.addChild(node);
+        },
+        node => new Node(node.name),
+        (list) => {
+          const newList = list.flatMap(node => {
+            if (Array.isArray(node.pid))
+            {
+              return node.pid.map(id => ({
+                ...node,
+                pid: id
+              }))
+            }
+            else return node
+          })
+          return newList
+        },
+      )
+    ).to.eql(tree);
+  })
 });

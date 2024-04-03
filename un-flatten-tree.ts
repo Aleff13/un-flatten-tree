@@ -84,6 +84,14 @@ export function unflatten<Node, OutNode>(
   list: ArrayLike<Node>,
   isChildNode: (node: Node, parentNode: Node) => boolean,
   addChildNode: (node: OutNode, parentNode: OutNode) => void,
+  convertNode: (node: Node) => OutNode,
+  convertMultiParentNodes: (list: any) => ArrayLike<Node>,
+): OutNode[];
+
+export function unflatten<Node, OutNode>(
+  list: ArrayLike<Node>,
+  isChildNode: (node: Node, parentNode: Node) => boolean,
+  addChildNode: (node: OutNode, parentNode: OutNode) => void,
   convertNode: (node: Node) => OutNode
 ): OutNode[];
 
@@ -91,8 +99,13 @@ export function unflatten<Node, OutNode>(
   list: ArrayLike<Node>,
   isChildNode: (node: Node, parentNode: Node) => boolean,
   addChildNode: (node: Node | OutNode, parentNode: Node | OutNode) => void,
-  convertNode?: (node: Node) => OutNode
+  convertNode?: (node: Node) => OutNode,
+  convertMultiParentNodes?: (list: ArrayLike<Node>) => ArrayLike<Node>,
 ): Array<Node | OutNode> {
+  if (convertMultiParentNodes !== undefined) {
+    list = convertMultiParentNodes(list)
+  }
+
   if (convertNode === undefined) {
     return reduce.call(
       list,
